@@ -1,4 +1,4 @@
-click==7.1.2
+﻿click==7.1.2
 Flask==1.0.2
 Flask-Uploads==0.2.1
 Flask-WTF==0.14.3
