@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<title>上传文件</title>
+<h1>上传文件(ZIP文件自动解压)</h1>
+<a href="{{ url_for('upload_file') }}">上传</a> /
+<a href="{{ url_for('manage_file') }}">管理</a>
+<hr>
+<form method="POST" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    {{ form.files(multiple="multiple")}}
+    {% for error in form.files.errors %}
+        <span style="color: red;">{{ error }}</span>
+    {% endfor %}
+    {{ form.submit }}
+</form>
+
+{% if success %}
+<br>
+<p>上传成功!</p>
+{% endif %}

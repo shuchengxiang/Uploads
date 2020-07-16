@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<title>管理文件</title>
+<h1>管理文件</h1>
+<a href="{{ url_for('upload_file') }}">上传</a> /
+<a href="{{ url_for('manage_file') }}">管理</a>
+<hr>
+
+{% for files in files_list %}
+    - {{ files }}
+    {% if files[-1] == '/' %}
+        <a href="{{ url_for('open_file', path=path + files)}}">打开</a>
+    {% else %}
+        <a href="{{ url_for('open_file', path=path + files)}}" target="_blank" a>打开</a>
+    {% endif %}
+    <a href="{{ url_for('delete_file', path=path + files) }}" onClick="return confirm('确定删除?');">删除</a><br>
+{% endfor %}
