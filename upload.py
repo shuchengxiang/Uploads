@@ -127,12 +127,13 @@ def open_file(path):
 
 @app.route('/delete/<path:path>')
 def delete_file(path):
+    refer = request.referrer
     file_path = files.path(path)
     if os.path.isdir(file_path):
         shutil.rmtree(file_path)
     else:
         os.remove(file_path)
-    return redirect(request.referrer)
+    return redirect(refer)
 
 if __name__ == '__main__':
     app.run(debug=True)
