@@ -12,5 +12,5 @@
     {% else %}
         <a href="{{ url_for('open_file', path=path + files)}}" target="_blank" a>打开</a>
     {% endif %}
-    <a href="{{ url_for('delete_file', path=path + files) }}" onClick="return confirm('确定删除?');">删除</a><br>
+    <a href="{{ url_for('delete_file', path=path + files) }}?next={{ request.url }}" onClick="return confirm('确定删除?');">删除</a><br>
 {% endfor %}
