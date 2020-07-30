@@ -3,7 +3,7 @@ import os
 import zipfile
 import shutil
 
-from flask import Flask, render_template, redirect, request, send_file
+from flask import Flask, render_template, redirect, request, send_file, url_for
 from flask_uploads import UploadSet, configure_uploads, patch_request_class, \
       DEFAULTS, ARCHIVES, AUDIO, EXECUTABLES, SCRIPTS
 from flask_wtf import FlaskForm
@@ -13,7 +13,7 @@ from wtforms import SubmitField
 
 app = Flask(__name__,template_folder='./templates')
 
-upload_path = os.path.join(os.path.dirname(__file__),'uploads')
+upload_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'uploads'))
 app.config['SECRET_KEY'] = 'I have a dream'
 app.config['UPLOADED_FILES_DEST'] = upload_path
 app.config['UPLOADED_FILES_'] = upload_path
@@ -102,24 +102,27 @@ def manage_file():
     files_list = os.listdir(app.config['UPLOADED_FILES_DEST'])
     file_path = files.path('.')
     for i in range(len(files_list)):
-        if os.path.isdir(os.path.join(file_path,files_list[i])):
+        if os.path.isdir(os.path.join(file_path, files_list[i])):
             files_list[i] = files_list[i] + '/'
     return render_template('file_manage.html', files_list=files_list, path='')
 
 
 @app.route('/open/<path:path>')
 def open_file(path):
-    file_path = files.path(path)
+    file_path = os.path.abspath(os.path.join(upload_path, path))
     if os.path.isdir(file_path):
         files_list = os.listdir(file_path)
+        parent_path = os.path.abspath(os.path.dirname(file_path[:-1]))
+        parent_path_url = ''
+        if parent_path == upload_path:
+            pass
+        else:
+            # 处理得到可用的父级目录URL
+            parent_path_url = parent_path.split(upload_path)[-1].replace('\\', '/')[1:] + '/'
         for i in range(len(files_list)):
-            if os.path.isdir(os.path.join(file_path,files_list[i])):
+            if os.path.isdir(os.path.join(file_path, files_list[i])):
                 files_list[i] = files_list[i] + '/'
-        # if path[-1] == '/':
-        #     pass
-        # else:
-        #     path = path+'/'
-        return render_template('file_manage.html', files_list=files_list, path=path)
+        return render_template('file_manage.html', files_list=files_list, path=path, parent_path=parent_path_url)
     else:
         file_path = file_path.replace('\\', '/')
         return send_file(file_path)
