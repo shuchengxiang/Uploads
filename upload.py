@@ -4,8 +4,7 @@ import zipfile
 import shutil
 
 from flask import Flask, render_template, redirect, request, send_file, url_for
-from flask_uploads import UploadSet, configure_uploads, patch_request_class, \
-      DEFAULTS, ARCHIVES, AUDIO, EXECUTABLES, SCRIPTS
+from flask_uploads import UploadSet, configure_uploads, patch_request_class, ALL
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import SubmitField
@@ -21,8 +20,7 @@ app.config['UPLOADED_DEFAULT_DEST'] =upload_path
 app.config['UPLOADED_DEFAULT_URL'] = upload_path
 # app.config['UPLOADED_X_DENY'] = []
 
-# OTHER = tuple('css html ico woff2 cur log image/jpeg'.split())
-files = UploadSet('files', DEFAULTS+AUDIO+ARCHIVES+SCRIPTS+EXECUTABLES)
+files = UploadSet('files', ALL)
 configure_uploads(app, files)
 patch_request_class(app, size=15 * 1024 * 1024 * 1024)  # set maximum file size, default is 64MB
 
@@ -43,7 +41,10 @@ def getAllDirRE(path, sp=""):
         try:
             filename = fileName.encode('cp437').decode('utf-8')
         except:
-            filename = fileName.encode('utf-8').decode('utf-8')
+            try:
+                filename = fileName.encode('cp437').decode('gbk')
+            except:
+                filename = fileName.encode('utf-8').decode('utf-8')
         os.chdir(path)
         os.rename(fileName, filename)  # 重命名文件
         # 判断是否是路径（用绝对路径）
@@ -84,13 +85,13 @@ def upload_file():
         for filename in request.files.getlist('files'):
             # name = hashlib.md5(('admin' + str(time.time())).encode('utf-8')).hexdigest()[:15]
             name = filename.filename
-        # try:
+        try:
             savename = files.save(filename, name=name)
             if zipfile.is_zipfile(os.path.join(app.config['UPLOADED_FILES_DEST'], name)):
                 unzip_file(os.path.join(app.config['UPLOADED_FILES_DEST'], name),
                            os.path.join(app.config['UPLOADED_FILES_DEST'], savename.split('.')[0]))
-        # except:
-        #     print(filename)
+        except Exception as e:
+            print(e)
         success = True
     else:
         success = False
