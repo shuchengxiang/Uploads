@@ -18,7 +18,7 @@
     {% if files[-1] == '/' %}
         <a href="{{ url_for('open_file', path=path + files)}}">{{ files }}</a>
     {% else %}
-        <a href="{{ url_for('open_file', path=path + files)}}" target="_blank" a>{{ files }}</a>
+        <a href="{{ url_for('open_file', path=path + files)}}" target="_blank">{{ files }}</a>
     {% endif %}
     <a href="{{ url_for('delete_file', path=path + files) }}?next={{ request.url }}" onClick="return confirm('确定删除?');">删除</a><br>
 {% endfor %}
