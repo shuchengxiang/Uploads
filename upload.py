@@ -87,7 +87,7 @@ def upload_file():
             name = filename.filename
         try:
             savename = files.save(filename, name=name)
-            if zipfile.is_zipfile(os.path.join(app.config['UPLOADED_FILES_DEST'], name)):
+            if '.zip' in name and zipfile.is_zipfile(os.path.join(app.config['UPLOADED_FILES_DEST'], name)):
                 unzip_file(os.path.join(app.config['UPLOADED_FILES_DEST'], name),
                            os.path.join(app.config['UPLOADED_FILES_DEST'], savename.split('.')[0]))
         except Exception as e:
