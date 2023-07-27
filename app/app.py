@@ -8,11 +8,15 @@ from flask_uploads import UploadSet, configure_uploads, patch_request_class, ALL
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileField, FileRequired, FileAllowed
 from wtforms import SubmitField
+from api import api
 
 
 app = Flask(__name__,template_folder='./templates')
+app.register_blueprint(api, url_prefix='/api')
 
-upload_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'uploads'))
+default_upload_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'uploads'))
+upload_path = os.getenv('upload_path', default_upload_path)
+
 app.config['SECRET_KEY'] = 'I have a dream'
 app.config['UPLOADED_FILES_DEST'] = upload_path
 app.config['UPLOADED_FILES_'] = upload_path
@@ -78,21 +82,21 @@ def unzip_file(zip_src, dst_dir):
         return "请上传zip类型压缩文件"
 
 
-@app.route('/scx_upload', methods=['GET', 'POST'])
+@app.route('/upload', methods=['GET', 'POST'])
 def upload_file():
     form = UploadForm()
     if form.validate_on_submit():
         for filename in request.files.getlist('files'):
             # name = hashlib.md5(('admin' + str(time.time())).encode('utf-8')).hexdigest()[:15]
             name = filename.filename
-        try:
-            savename = files.save(filename, name=name)
-            if '.zip' in name and zipfile.is_zipfile(os.path.join(app.config['UPLOADED_FILES_DEST'], name)):
-                unzip_file(os.path.join(app.config['UPLOADED_FILES_DEST'], name),
-                           os.path.join(app.config['UPLOADED_FILES_DEST'], savename.split('.')[0]))
-        except Exception as e:
-            print(e)
-        success = True
+            try:
+                savename = files.save(filename, name=name)
+                if '.zip' in name and zipfile.is_zipfile(os.path.join(app.config['UPLOADED_FILES_DEST'], name)):
+                    unzip_file(os.path.join(app.config['UPLOADED_FILES_DEST'], name),
+                            os.path.join(app.config['UPLOADED_FILES_DEST'], savename.split('.')[0]))
+            except Exception as e:
+                print(e)
+            success = True
     else:
         success = False
     return render_template('file_index.html', form=form, success=success)
@@ -139,4 +143,4 @@ def delete_file(path):
     return redirect(request.args.get('next'))
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, host='0.0.0.0')
